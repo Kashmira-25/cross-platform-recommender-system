@@ -1,0 +1,7 @@
+user_id,product_name,category,interaction_type,price,timestamp
+101,Laptop Stand,Technology,Viewed,999,2026-04-18 12:30
+101,Wireless Mouse,Technology,Purchased,1499,2026-04-18 13:00
+102,Yoga Mat,Fitness,Purchased,799,2026-04-18 14:00
+102,Protein Powder,Fitness,Viewed,1999,2026-04-18 15:00
+103,Dress,Fashion,Viewed,2499,2026-04-18 16:00
+103,Lipstick,Fashion,Purchased,799,2026-04-18 17:00

@@ -1,0 +1,7 @@
+user_id,video_title,category,watch_time,liked,timestamp
+101,Python Basics,Education,35,Yes,2026-04-18 10:00
+101,AI Trends,Technology,20,No,2026-04-18 11:00
+102,Workout Tips,Fitness,25,Yes,2026-04-18 12:00
+102,Healthy Diet,Fitness,30,Yes,2026-04-18 13:00
+103,Fashion Trends,Fashion,15,No,2026-04-18 14:00
+103,Makeup Tutorial,Fashion,20,Yes,2026-04-18 15:00

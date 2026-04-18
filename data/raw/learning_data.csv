@@ -1,0 +1,7 @@
+user_id,course_name,domain,completion_status,time_spent,timestamp
+101,Python for Beginners,Data Science,In Progress,45,2026-04-18 18:00
+101,Machine Learning Basics,AI,Completed,60,2026-04-18 19:00
+102,Fitness Training,Fitness,Completed,50,2026-04-18 20:00
+102,Yoga Basics,Fitness,In Progress,40,2026-04-18 21:00
+103,Fashion Styling,Fashion,Completed,30,2026-04-18 22:00
+103,Makeup Basics,Fashion,In Progress,25,2026-04-18 23:00
