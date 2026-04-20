@@ -1,0 +1,4 @@
+user_id,top_interest_category,top_interest_score,platform_count,total_interactions,total_engagement_score,recommendation_1,recommendation_2,recommendation_3
+101,AI,80,3,6,195,Deep Learning Course,AI Research Videos,Prompt Engineering Guide
+102,Fitness,180,3,6,180,Workout App Subscription,Yoga and Training Videos,Protein and Wellness Products
+103,Fashion,125,3,6,125,Fashion Styling Videos,Beauty and Makeup Products,Trend-Based Shopping Suggestions
