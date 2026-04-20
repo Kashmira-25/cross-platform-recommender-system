@@ -1,0 +1,19 @@
+user_id,platform,item_name,item_category,interaction_type,engagement_score,timestamp
+101,YouTube,Python Basics,Education,watched,35,2026-04-18 10:00
+101,YouTube,AI Trends,Technology,watched,20,2026-04-18 11:00
+102,YouTube,Workout Tips,Fitness,watched,25,2026-04-18 12:00
+102,YouTube,Healthy Diet,Fitness,watched,30,2026-04-18 13:00
+103,YouTube,Fashion Trends,Fashion,watched,15,2026-04-18 14:00
+103,YouTube,Makeup Tutorial,Fashion,watched,20,2026-04-18 15:00
+101,Shopping,Laptop Stand,Technology,Viewed,5,2026-04-18 12:30
+101,Shopping,Wireless Mouse,Technology,Purchased,10,2026-04-18 13:00
+102,Shopping,Yoga Mat,Fitness,Purchased,10,2026-04-18 14:00
+102,Shopping,Protein Powder,Fitness,Viewed,5,2026-04-18 15:00
+103,Shopping,Dress,Fashion,Viewed,5,2026-04-18 16:00
+103,Shopping,Lipstick,Fashion,Purchased,10,2026-04-18 17:00
+101,Learning,Python for Beginners,Data Science,in_progress,45,2026-04-18 18:00
+101,Learning,Machine Learning Basics,AI,completed,80,2026-04-18 19:00
+102,Learning,Fitness Training,Fitness,completed,70,2026-04-18 20:00
+102,Learning,Yoga Basics,Fitness,in_progress,40,2026-04-18 21:00
+103,Learning,Fashion Styling,Fashion,completed,50,2026-04-18 22:00
+103,Learning,Makeup Basics,Fashion,in_progress,25,2026-04-18 23:00
