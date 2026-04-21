@@ -14,3 +14,11 @@ print(shopping_df.head())
 
 print("\nLearning Data:")
 print(learning_df.head())
+
+import os
+
+# Create processed folder if not exists
+os.makedirs("data/processed", exist_ok=True)
+
+# Save combined preview (temporary)
+youtube_df.to_csv("data/processed/youtube_preview.csv", index=False)
