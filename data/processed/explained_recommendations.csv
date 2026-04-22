@@ -1,0 +1,4 @@
+user_id,platform_count,total_interactions,total_engagement_score,recommendation_1,recommendation_2,recommendation_3,top_interest_category,top_interest_score,platforms_used,recommendation_reason
+101,3,6,195,Deep Learning Course,AI Research Videos,Prompt Engineering Guide,AI,80,"Learning, Shopping, YouTube","User 101 shows strong interest in AI (score: 80) based on activity across Learning, Shopping, YouTube."
+102,3,6,180,Workout App Subscription,Yoga and Training Videos,Protein and Wellness Products,Fitness,180,"Learning, Shopping, YouTube","User 102 shows strong interest in Fitness (score: 180) based on activity across Learning, Shopping, YouTube."
+103,3,6,125,Fashion Styling Videos,Beauty and Makeup Products,Trend-Based Shopping Suggestions,Fashion,125,"Learning, Shopping, YouTube","User 103 shows strong interest in Fashion (score: 125) based on activity across Learning, Shopping, YouTube."
