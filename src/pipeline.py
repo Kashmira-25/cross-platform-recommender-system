@@ -1,3 +1,4 @@
+from src.ml_recommender import generate_ml_recommendations
 from pathlib import Path
 import pandas as pd
 
@@ -192,9 +193,11 @@ def generate_recommendations(user_profile_df):
 
 
 # ---------------------------------------------------
+# ---------------------------------------------------
 # Generate recommendation explanations
 # ---------------------------------------------------
-def generate_explanations(integrated_df, recommendations_df):
+def generate_explanations(integrated_df, recommendations_df, user_profile_df):
+
     platform_summary = (
         integrated_df.groupby("user_id")["platform"]
         .unique()
@@ -204,25 +207,53 @@ def generate_explanations(integrated_df, recommendations_df):
     platform_summary["platforms_used"] = platform_summary["platform"].apply(
         lambda x: ", ".join(sorted(x))
     )
+
     platform_summary = platform_summary.drop(columns=["platform"])
 
+
+    # Add user profile information
     final_df = recommendations_df.merge(
+        user_profile_df[
+            [
+                "user_id",
+                "top_interest_category",
+                "top_interest_score"
+            ]
+        ],
+        on="user_id",
+        how="left"
+    )
+
+
+    # Add platform information
+    final_df = final_df.merge(
         platform_summary,
         on="user_id",
         how="left"
     )
 
-    final_df["platforms_used"] = final_df["platforms_used"].fillna("Unknown")
+
+    final_df["platforms_used"] = final_df["platforms_used"].fillna(
+        "Unknown"
+    )
+
 
     def build_reason(row):
+
         return (
             f"User {row['user_id']} shows strong interest in "
             f"{row['top_interest_category']} "
             f"(score: {row['top_interest_score']}) "
-            f"based on activity across {row['platforms_used']}."
+            f"based on activity across "
+            f"{row['platforms_used']}."
         )
 
-    final_df["recommendation_reason"] = final_df.apply(build_reason, axis=1)
+
+    final_df["recommendation_reason"] = final_df.apply(
+        build_reason,
+        axis=1
+    )
+
 
     return final_df
 
@@ -239,17 +270,52 @@ def save_outputs(integrated_df, user_profile_df, recommendations_df, explained_d
     recommendations_df.to_csv(processed_dir / "user_recommendations.csv", index=False)
     explained_df.to_csv(processed_dir / "explained_recommendations.csv", index=False)
 
-
-# ---------------------------------------------------
-# Run full pipeline
-# ---------------------------------------------------
 def run_pipeline():
+
     youtube_df, shopping_df, learning_df = load_raw_data()
-    integrated_df = integrate_data(youtube_df, shopping_df, learning_df)
-    user_profile_df = build_user_profile(integrated_df)
-    recommendations_df = generate_recommendations(user_profile_df)
-    explained_df = generate_explanations(integrated_df, recommendations_df)
 
-    save_outputs(integrated_df, user_profile_df, recommendations_df, explained_df)
 
-    return integrated_df, user_profile_df, recommendations_df, explained_df
+    # Combine all platforms
+    integrated_df = integrate_data(
+        youtube_df,
+        shopping_df,
+        learning_df
+    )
+
+
+    # Build user interest profile
+    user_profile_df = build_user_profile(
+        integrated_df
+    )
+
+
+    # Generate ML based recommendations
+    recommendations_df = generate_ml_recommendations(
+        user_profile_df,
+        integrated_df
+    )
+
+
+    # Generate explanations
+    explained_df = generate_explanations(
+        integrated_df,
+        recommendations_df,
+        user_profile_df
+    )
+
+
+    # Save output files
+    save_outputs(
+        integrated_df,
+        user_profile_df,
+        recommendations_df,
+        explained_df
+    )
+
+
+    return (
+        integrated_df,
+        user_profile_df,
+        recommendations_df,
+        explained_df
+    )

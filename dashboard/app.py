@@ -1,101 +1,501 @@
+# ---------------------------------------------------
+# FIX IMPORT PATH
+# ---------------------------------------------------
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR))
+
+
+# ---------------------------------------------------
+# IMPORTS
+# ---------------------------------------------------
 import streamlit as st
 import pandas as pd
-from src.pipeline import integrate_data, build_user_profile, generate_recommendations, generate_explanations
+import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="Cross-Platform Recommender System", layout="wide")
+from login import login_page
 
-st.title("Cross-Platform Recommender System")
-st.write("Analyze user behavior and generate personalized recommendations.")
+from src.pipeline import run_pipeline
 
-# ---------------------------------------------------
-# Mode Selection
-# ---------------------------------------------------
-mode = st.sidebar.radio("Select Mode", ["Demo Mode", "Upload Your Data"])
 
 # ---------------------------------------------------
-# DEMO MODE
+# PAGE CONFIGURATION
+# ---------------------------------------------------
+st.set_page_config(
+    page_title="Cross-Platform Recommender System",
+    page_icon="🚀",
+    layout="wide"
+)
+
+
+# ---------------------------------------------------
+# SESSION STATE
+# ---------------------------------------------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "data_loaded" not in st.session_state:
+    st.session_state.data_loaded = False
+
+
+# ---------------------------------------------------
+# LOGIN
+# ---------------------------------------------------
+if not st.session_state.logged_in:
+
+    login_page()
+
+    st.stop()
+
+
+# ---------------------------------------------------
+# CSS
+# ---------------------------------------------------
+st.markdown("""
+<style>
+
+.metric-card{
+    background-color:#F8F9FA;
+    padding:15px;
+    border-radius:12px;
+    border:1px solid #E6E6E6;
+}
+
+.recommend-card{
+    background-color:#F4F6FF;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.footer{
+    text-align:center;
+    color:gray;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+
+# ---------------------------------------------------
+# HEADER
+# ---------------------------------------------------
+st.title("🚀 Cross-Platform Recommender System")
+
+st.write(
+"""
+Analyze user behaviour across multiple platforms and generate
+personalized recommendations.
+"""
+)
+
+
+# ---------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------
+st.sidebar.title("📊 Dashboard")
+
+
+mode = st.sidebar.radio(
+    "Select Mode",
+    [
+        "Demo Mode",
+        "Upload Your Data (Coming Soon)"
+    ]
+)
+
+
+
+# ---------------------------------------------------
+# LOAD DATA
 # ---------------------------------------------------
 if mode == "Demo Mode":
-    from src.pipeline import run_pipeline
 
-    st.sidebar.success("Using demo dataset")
+    if st.sidebar.button("Load Demo Data"):
 
-    integrated_df, profile_df, recommendation_df, explained_df = run_pipeline()
+        with st.spinner("Running recommendation pipeline..."):
+
+            (
+                integrated_df,
+                profile_df,
+                recommendation_df,
+                explained_df
+            ) = run_pipeline()
+
+
+            st.session_state.integrated_df = integrated_df
+            st.session_state.profile_df = profile_df
+            st.session_state.recommendation_df = recommendation_df
+            st.session_state.explained_df = explained_df
+
+            st.session_state.data_loaded = True
+
+
+        st.sidebar.success("Data Loaded Successfully")
+
+
+
+if not st.session_state.data_loaded:
+
+    st.info(
+"""
+Click **Load Demo Data** from sidebar to start.
+"""
+)
+
+    st.stop()
+
+
 
 # ---------------------------------------------------
-# UPLOAD MODE
+# GET DATA
 # ---------------------------------------------------
-else:
-    st.sidebar.info("Upload your CSV files")
 
-    youtube_file = st.sidebar.file_uploader("Upload YouTube Data", type=["csv"])
-    shopping_file = st.sidebar.file_uploader("Upload Shopping Data", type=["csv"])
-    learning_file = st.sidebar.file_uploader("Upload Learning Data", type=["csv"])
+integrated_df = st.session_state.integrated_df
+profile_df = st.session_state.profile_df
+recommendation_df = st.session_state.recommendation_df
+explained_df = st.session_state.explained_df
 
-    if youtube_file and shopping_file and learning_file:
-        youtube_df = pd.read_csv(youtube_file)
-        shopping_df = pd.read_csv(shopping_file)
-        learning_df = pd.read_csv(learning_file)
 
-        integrated_df = integrate_data(youtube_df, shopping_df, learning_df)
-        profile_df = build_user_profile(integrated_df)
-        recommendation_df = generate_recommendations(profile_df)
-        explained_df = generate_explanations(integrated_df, recommendation_df)
 
-        st.success("Data processed successfully!")
-    else:
-        st.warning("Please upload all three datasets.")
-        st.stop()
+# DEBUG
+with st.expander("Debug Columns"):
+
+    st.write("Profile columns:")
+    st.write(profile_df.columns)
+
+    st.write("Recommendation columns:")
+    st.write(recommendation_df.columns)
+
+
 
 # ---------------------------------------------------
 # USER SELECTION
 # ---------------------------------------------------
-user_list = sorted(profile_df["user_id"].unique())
-selected_user = st.sidebar.selectbox("Select User", user_list)
 
-user_profile = profile_df[profile_df["user_id"] == selected_user]
-user_recommendation = recommendation_df[recommendation_df["user_id"] == selected_user]
-user_explained = explained_df[explained_df["user_id"] == selected_user]
-user_data = integrated_df[integrated_df["user_id"] == selected_user]
+st.sidebar.subheader("👤 Select User")
+
+
+user_list = sorted(
+    profile_df["user_id"].unique()
+)
+
+
+selected_user = st.sidebar.selectbox(
+    "User ID",
+    user_list
+)
+
+
+
+# ---------------------------------------------------
+# FILTER USER
+# ---------------------------------------------------
+
+user_profile = profile_df[
+    profile_df["user_id"] == selected_user
+]
+
+
+user_recommendation = recommendation_df[
+    recommendation_df["user_id"] == selected_user
+]
+
+
+user_explained = explained_df[
+    explained_df["user_id"] == selected_user
+]
+
+
+user_data = integrated_df[
+    integrated_df["user_id"] == selected_user
+]
+
+
 
 # ---------------------------------------------------
 # DASHBOARD
 # ---------------------------------------------------
-st.header(f"User Dashboard - User {selected_user}")
+
+st.header(
+    f"📊 User Dashboard - User {selected_user}"
+)
+
+
 
 if not user_profile.empty:
+
+
     row = user_profile.iloc[0]
 
-    col1, col2, col3, col4 = st.columns(4)
 
-    col1.metric("Top Interest", row["top_interest_category"])
-    col2.metric("Interest Score", row["top_interest_score"])
-    col3.metric("Total Interactions", row["total_interactions"])
-    col4.metric("Total Engagement", row["total_engagement_score"])
+    col1,col2,col3,col4 = st.columns(4)
+
+
+    with col1:
+
+        st.markdown(
+        """
+        <div class="metric-card">
+        🎯 Top Interest
+        </div>
+        """,
+        unsafe_allow_html=True
+        )
+
+
+        top_interest = row.get(
+            "top_interest_category",
+            "Not Available"
+        )
+
+
+        st.metric(
+            "",
+            top_interest
+        )
+
+
+    with col2:
+
+        st.markdown(
+        """
+        <div class="metric-card">
+        ⭐ Interest Score
+        </div>
+        """,
+        unsafe_allow_html=True
+        )
+
+
+        st.metric(
+            "",
+            row.get(
+                "top_interest_score",
+                0
+            )
+        )
+
+
+
+    with col3:
+
+        st.metric(
+            "📈 Total Interactions",
+            row.get(
+                "total_interactions",
+                0
+            )
+        )
+
+
+
+    with col4:
+
+        st.metric(
+            "🔥 Engagement",
+            row.get(
+                "total_engagement_score",
+                0
+            )
+        )
+
+
+
+st.divider()
+
+
+
+# ---------------------------------------------------
+# PLATFORM INTEREST
+# ---------------------------------------------------
+
+st.subheader("Platform-wise Interests")
+
+
+platform_interest = (
+    user_data
+    .groupby(
+        ["platform","item_category"]
+    )["engagement_score"]
+    .sum()
+    .reset_index()
+)
+
+
+
+platform_interest = (
+    platform_interest
+    .sort_values(
+        "engagement_score",
+        ascending=False
+    )
+    .drop_duplicates(
+        subset="platform"
+    )
+)
+
+
+
+for _,r in platform_interest.iterrows():
+
+    st.info(
+f"""
+### {r['platform']}
+
+Top Interest: {r['item_category']}
+
+Engagement: {r['engagement_score']}
+"""
+)
+
+
 
 # ---------------------------------------------------
 # RECOMMENDATIONS
 # ---------------------------------------------------
-st.subheader("Recommendations")
+
+st.subheader(
+"🎯 Personalized Recommendations"
+)
+
+
 
 if not user_recommendation.empty:
+
+
     rec = user_recommendation.iloc[0]
 
-    st.write(f"**1.** {rec['recommendation_1']}")
-    st.write(f"**2.** {rec['recommendation_2']}")
-    st.write(f"**3.** {rec['recommendation_3']}")
+
+    for i in range(1,4):
+
+        col = f"recommendation_{i}"
+
+        if col in rec:
+
+            st.markdown(
+f"""
+<div class="recommend-card">
+
+### Recommendation {i}
+
+{rec[col]}
+
+</div>
+""",
+unsafe_allow_html=True
+)
+
+
 
 # ---------------------------------------------------
 # EXPLANATION
 # ---------------------------------------------------
-st.subheader("Why these recommendations?")
+
+st.subheader(
+"💡 Why these recommendations?"
+)
+
 
 if not user_explained.empty:
+
     exp = user_explained.iloc[0]
-    st.info(exp["recommendation_reason"])
+
+    if "recommendation_reason" in exp:
+
+        st.info(
+            exp["recommendation_reason"]
+        )
+
+
 
 # ---------------------------------------------------
-# DATA PREVIEW
+# ACTIVITY
 # ---------------------------------------------------
-st.subheader("User Activity Data")
-st.dataframe(user_data)
+
+st.subheader(
+"📋 Complete User Activity"
+)
+
+
+st.dataframe(
+    user_data,
+    use_container_width=True,
+    hide_index=True
+)
+
+
+
+# ---------------------------------------------------
+# CHARTS
+# ---------------------------------------------------
+
+chart1,chart2 = st.columns(2)
+
+
+with chart1:
+
+    st.subheader(
+    "🥧 Interest Distribution"
+    )
+
+    counts = user_data["item_category"].value_counts()
+
+
+    fig,ax = plt.subplots()
+
+    ax.pie(
+        counts,
+        labels=counts.index,
+        autopct="%1.1f%%"
+    )
+
+    st.pyplot(fig)
+
+
+
+with chart2:
+
+    st.subheader(
+    "📊 Platform Usage"
+    )
+
+
+    counts = user_data["platform"].value_counts()
+
+
+    fig,ax = plt.subplots()
+
+    counts.plot(
+        kind="bar",
+        ax=ax
+    )
+
+    st.pyplot(fig)
+
+
+
+# ---------------------------------------------------
+# FOOTER
+# ---------------------------------------------------
+
+st.markdown(
+"""
+<hr>
+
+<center>
+
+🚀 Cross Platform Recommender System
+
+<br>
+
+Python • Pandas • Streamlit • Matplotlib
+
+</center>
+
+""",
+unsafe_allow_html=True
+)
